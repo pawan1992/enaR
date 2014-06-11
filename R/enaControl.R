@@ -3,7 +3,7 @@
 # OUTPUT = list of control statistics
 # 
 # M. Lau | July 2011
-# Revised - Singh, P. | June 2014 | Schramsky
+
 # ---------------------------------------------------
 
 enaControl <- function(x, zero.na=TRUE,balance.override=FALSE){
@@ -52,20 +52,22 @@ enaControl <- function(x, zero.na=TRUE,balance.override=FALSE){
 
                                         #Storage version
     CQ <- ginv(QP) %*% Q
-    ###############################SCHRAMSKY'S ALGORITHM###########################################################
-    ###########Patch | Singh, P | June 2014 | Algorithm Source: Schramsky et al Eco. Mod. I94(2006) 189-201########
-    T_out <- N %*% Ti                                                                # Calculating the Component Output Throughflow T_out given the Input z(=Ti)
-    T_in <- Tj %*% NP                                                                # Calculating the Component Input Throughflow T_in given the Output y(=Tj)
-    T_in_mat <- matrix(T_in,nrow=length(T_in), ncol=length(T_in),byrow='TRUE')       # Creating Matrix T_in_mat repeating the T_in vector in each row
-    T_out_mat <- matrix(T_out,nrow=length(T_out),ncol=length(T_out),byrow='FALSE')   # Creating Matrix T_out_mat repeating the T_out vector in each column
-    eta_1<-N/T_out_mat                                                               # Calculation of the eta matrix. Can be done by 2 different ways. Way1
-    eta_2<-NP/T_in_mat                                                               # Way2 ::: Theoretically eta_1==eta_2 but Numerically. Little error prevails
-    eta<-eta_1                                                                       # Defining eta as eta_1. Can be defined as eta_2 to observe variation
-    eta2<-t(eta)                                                                     # Taking the transpose of eta
-    CD = eta - eta2                                                                  # Calculating the Control Difference Matrix
-    CR = CD/pmax(eta,eta2)                                                           # Calculating the Control Ratio Matrix. Dividing the terms by the Maximum eta value
-    sc = apply(CD,2,sum)                                                             # Calculating the System Control Vector
-    names(sc) <- rownames(flow)                                                      # Assigning Names
+                                        #SCHRAMSKY'S ALGORITHM
+    #Patch | Algorithm Source: Schramsky et al Eco. Mod. I94(2006) 189-201
+    T_out <- N %*% Ti     # Calculating the Component Output Throughflow T_out given the Input z(=Ti)
+    T_in <- Tj %*% NP    # Calculating the Component Input Throughflow T_in given the Output y(=Tj)
+    T_in_mat <- matrix(T_in,nrow=length(T_in), ncol=length(T_in),byrow='TRUE') 
+    # Creating Matrix T_in_mat repeating the T_in vector in each row
+    T_out_mat <- matrix(T_out,nrow=length(T_out),ncol=length(T_out),byrow='FALSE')  
+    # Creating Matrix T_out_mat repeating the T_out vector in each column
+    eta_1<-N/T_out_mat  # Calculation of the eta matrix. Can be done by 2 different ways. Way1
+    eta_2<-NP/T_in_mat  # Way2 ::: Theoretically eta_1==eta_2 but Numerically. Little error prevails
+    eta<-eta_1          # Defining eta as eta_1. Can be defined as eta_2 to observe variation
+    eta2<-t(eta)        # Taking the transpose of eta
+    CD = eta - eta2     # Calculating the Control Difference Matrix
+    CR = CD/pmax(eta,eta2)   # Calculating the Control Ratio Matrix. Dividing the terms by the Maximum eta value
+    sc = apply(CD,2,sum)     # Calculating the System Control Vector
+    names(sc) <- rownames(flow)    # Assigning Names
     rownames(CR) <- colnames(CR) <- rownames(flow)
     rownames(CD) <- colnames(CD) <- rownames(flow)
                                         #Name nodes
